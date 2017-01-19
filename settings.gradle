@@ -1,0 +1,26 @@
+//* cposdevicesdk编译出release版本的jar包拷贝到根目录的output文件夹下，debug版本不编译
+//* app编译产生的debug和release的apk都需要拷贝到根目录的output文件夹下
+//* output文件夹下最好会有3个产物，app编译产生的debug和release版本，cposdevicesdk编译出release版本，这3个产物的名字内必须有版本号,版本号来自manifest
+
+
+println 'setting.gradle execute'
+
+def initSdkApi(){
+    println "setting initSdkApi"
+    Properties properties = new Properties()
+    //local.properites 也放在 posdevice 目录下
+
+    File propertyFile = new File(rootDir.getAbsolutePath() + "/local.properties")
+    properties.load(propertyFile.newDataInputStream())
+    /*
+      根据 Project、Gradle 生命周期的介绍，settings 对象的创建位于具体 Project 创建之前
+      而 Gradle 底对象已经创建好了。所以，我们把 local.properties 的信息读出来后，通过
+      extra 属性的方式设置到 gradle 对象中
+      而具体 Project 在执行的时候，就可以直接从 gradle 对象中得到这些属性了！
+
+    */
+    gradle.ext.api = properties.getProperty('sdk.api')
+}
+//初始化
+initSdkApi()
+include ':app', ':cposdevicesdk'

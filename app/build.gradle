@@ -1,0 +1,57 @@
+apply plugin: 'com.android.application'
+
+println 'app build.gradle execute'
+android {
+//    采用api导入的方式
+    compileSdkVersion gradle.api
+//    利用gradle.properties
+    buildToolsVersion buildToolsVer
+    defaultConfig {
+        applicationId "com.fish.posdevice"
+        minSdkVersion 15
+        targetSdkVersion 25
+        versionCode 1
+        versionName "1.0"
+        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+    }
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+    }
+}
+
+dependencies {
+    compile fileTree(include: ['*.jar'], dir: 'libs')
+    androidTestCompile('com.android.support.test.espresso:espresso-core:2.2.2', {
+        exclude group: 'com.android.support', module: 'support-annotations'
+    })
+    compile 'com.android.support:appcompat-v7:25.0.1'
+    testCompile 'junit:junit:4.12'
+    compile project(':cposdevicesdk')
+}
+
+
+task copyTask(type: Copy){
+    println "apk is coping "
+    from('build/outputs/apk')
+    include('*.apk')
+    into('../output/')
+    rename(/(.*).apk/,'$1-'+project.getVersionNameAdvanced()+'.apk')
+
+}
+
+tasks.whenTaskAdded { task ->
+    if (task.name == 'assembleRelease') {
+        task.finalizedBy 'copyTask'
+    }
+}
+
+gradle.taskGraph.whenReady { graph ->
+    println 'taskGraph.whenReady'
+    graph.allTasks.findAll {
+        it.name ==~ /lint.*/
+    }*.enabled = true
+
+}

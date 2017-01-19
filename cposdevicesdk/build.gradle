@@ -1,0 +1,86 @@
+apply plugin: 'com.android.library'
+//apply from: rootProject.getRootDir().getAbsolutePath() + "/utils.gradle"
+
+println 'lib build.gradle execute begin'
+
+android {
+    compileSdkVersion gradle.api
+    buildToolsVersion buildToolsVer
+
+    defaultConfig {
+        minSdkVersion 15
+        targetSdkVersion 25
+        versionCode 1
+        versionName "1.0"
+
+        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+
+    }
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+    }
+}
+
+dependencies {
+    compile fileTree(dir: 'libs', include: ['*.jar'])
+    androidTestCompile('com.android.support.test.espresso:espresso-core:2.2.2', {
+        exclude group: 'com.android.support', module: 'support-annotations'
+    })
+    compile 'com.android.support:appcompat-v7:25.0.1'
+    testCompile 'junit:junit:4.12'
+}
+
+clean.doFirst {
+    delete "${rootDir}/output/"
+    println "delete output before clean"
+}
+
+
+tasks.getByName("assemble"){
+    it.doLast{
+        println "after assemble"
+//        copyOutput(true)
+    }
+}
+
+task copyTask(type: Copy){
+    println "jar is coping "
+    from('build/intermediates/bundles/release/')
+    into('../output/')
+    include('classes.jar')
+    rename (/(.*).jar/, 'cposdevicesdk-release'+project.getVersionNameAdvanced()+'.jar')
+}
+//
+//task copyTask() {
+//    println "我试试jar is coping "
+//    doLast {
+//        println "喂喂喂 is coping "
+//
+//    }
+//}
+
+
+tasks.whenTaskAdded { task ->
+    //下边如果用 assemble,不行
+    if (task.name == 'assembleRelease') {
+        task.finalizedBy 'copyTask'
+    }
+}
+
+
+/*
+  因为我的项目只提供最终的 release 编译出来的 Jar 包给其他人，所以不需要编译 debug 版的东西
+
+  当 Project 创建完所有任务的有向图后，我通过 afterEvaluate 函数设置一个回调 Closure。在这个回调
+
+  Closure 里，我 disable 了所有 Debug 的 Task
+*/
+project.afterEvaluate{
+    println 'afterEvaluate -> disableDebugBuild lib'
+    disableDebugBuild()
+}
+
+println 'lib build.gradle execute end'

@@ -1,0 +1,32 @@
+// Top-level build file where you can add configuration options common to all sub-projects/modules.
+println "root build.gradle execute"
+buildscript {
+    repositories {
+        jcenter()
+    }
+    dependencies {
+        classpath 'com.android.tools.build:gradle:2.2.3'
+
+        // NOTE: Do not place your application dependencies here; they belong
+        // in the individual module build.gradle files
+    }
+
+}
+
+
+subprojects{
+//为每个子 Project 加载 utils.gradle 。当然，这句话可以放到 buildscript 花括号之后,必须位于subprojects之内
+    apply from: rootProject.getRootDir().getAbsolutePath() + "/utils.gradle"
+}
+
+
+
+allprojects {
+    repositories {
+        jcenter()
+    }
+}
+
+task clean(type: Delete) {
+    delete rootProject.buildDir
+}
