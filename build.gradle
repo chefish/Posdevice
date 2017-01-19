@@ -15,7 +15,7 @@ buildscript {
 
 
 subprojects{
-//为每个子 Project 加载 utils.gradle 。当然，这句话可以放到 buildscript 花括号之后,必须位于subprojects之内
+//为每个子 Project 加载 utils.gradle 。当然，这句话必须位于subprojects之内
     apply from: rootProject.getRootDir().getAbsolutePath() + "/utils.gradle"
 }
 
